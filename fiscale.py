@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Configuration de la page Streamlit
 st.set_page_config(
@@ -10,7 +11,7 @@ st.set_page_config(
 st.title("🌍 Gestion de la Fiscalité dans la commune de Pikine Nord")
 st.write("Cette application Streamlit permet de générer, corriger et télécharger l'interface cartographique de la commune.")
 
-# Définition du code HTML mis à jour et centré
+# Définition du code HTML mis à jour et centré (au cas où vous téléchargez le fichier index.html)
 html_pikine_nord = """<!doctype html>
 <html lang="en">
     <head>
@@ -90,11 +91,10 @@ html_pikine_nord = """<!doctype html>
             minZoom: 1
         });
 
-        // --- NOUVEAU CENTRAGE DE LA CARTE (14.761347, -17.395027) ---
-        // Proj4 utilise l'ordre [Longitude, Latitude] -> [-17.395027, 14.761347]
+        // Centrage ajusté sur la zone requise (14.761347, -17.395027)
         var pointTarget = proj4('EPSG:4326', 'EPSG:32628', [-17.395027, 14.761347]);
         var leafletPoint = L.point(pointTarget[0], pointTarget[1]);
-        map.setView(crs.projection.unproject(leafletPoint), 16); // Zoom ajusté pour une vue rapprochée et nette
+        map.setView(crs.projection.unproject(leafletPoint), 16);
 
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
@@ -118,7 +118,6 @@ html_pikine_nord = """<!doctype html>
         var bounds_group = new L.featureGroup([]);
         function setBounds() {}
 
-        # --- CORRECTION HTTPS SÉCURISÉE DU FOND GOOGLE SATELLITE ---
         map.createPane('pane_GoogleSatellite_0');
         map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
         var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
@@ -130,13 +129,11 @@ html_pikine_nord = """<!doctype html>
             maxNativeZoom: 20
         });
         map.addLayer(layer_GoogleSatellite_0);
-
-        // Vos couches Leaflet json_PIKINENORD_1, json_Secteur5_2, etc., s'exécutent à la suite...
         </script>
     </body>
 </html>"""
 
-# Interface de téléchargement
+# Interface de téléchargement de l'index.html
 col_info, col_actions = st.columns([2, 1])
 
 with col_info:
@@ -144,19 +141,31 @@ with col_info:
     st.markdown("""
     - **Projet :** Application de gestion de la fiscalité locale.
     - **Zone cible :** Commune de Pikine Nord.
-    - **Coordonnées du centre :** 14.761347, -17.395027 (Ajusté).
+    - **Coordonnées du centre :** 14.761347, -17.395027.
     """)
 
 with col_actions:
     st.subheader("📥 Téléchargement")
     st.download_button(
-        label="Télécharger index.html corrigé",
+        label="Télécharger index.html pour maintenance",
         data=html_pikine_nord,
         file_name="index.html",
         mime="text/html",
         type="primary"
     )
 
-# --- AJOUT DU LIEN DE L'APPLICATION EN BAS ---
+# --- AJOUT DE LA PAGE INTÉGRÉE (NETLIFY) ---
 st.divider()
-st.markdown("🔗 **Lien de l'application en ligne :** [https://getiondelafiscalite.streamlit.app/](https://getiondelafiscalite.streamlit.app/)")
+st.subheader("🗺️ Aperçu en temps réel de la Carte Interactive")
+st.write("Retrouvez ci-dessous la cartographie dynamique hébergée sur Netlify :")
+
+# Intégration de la page Netlify avec les coordonnées spécifiées
+url_netlify = "https://gestion-fiscalite-local-pikine-nord.netlify.app/#16/14.761347/-17.395027"
+st.components.v1.iframe(url_netlify, height=600, scrolling=True)
+
+# --- ZONE DES LIENS DE L'APPLICATION ---
+st.divider()
+st.markdown("""
+🔗 **Lien de l'application en ligne :** [https://getiondelafiscalite.streamlit.app/](https://getiondelafiscalite.streamlit.app/)  
+🌐 **Serveur de données Cartographiques (Netlify) :** [Visiter la page plein écran]({})
+""".format(url_netlify))
