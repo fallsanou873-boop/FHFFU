@@ -9,9 +9,9 @@ st.set_page_config(
 )
 
 st.title("🌍 Gestion de la Fiscalité dans la commune de Pikine Nord")
-st.write("Cette application Streamlit permet de générer, corriger et télécharger l'interface cartographique de la commune.")
+st.write("Cette application Streamlit permet de générer, corriger et télécharger l'interface cartographique avec les fonds de carte configurés (Google Hybride par défaut et OSM).")
 
-# Définition du code HTML mis à jour avec zoom = 14
+# Définition du code HTML mis à jour
 html_pikine_nord = """<!doctype html>
 <html lang="en">
     <head>
@@ -91,7 +91,7 @@ html_pikine_nord = """<!doctype html>
             minZoom: 1
         });
 
-        // Centrage sur Pikine Nord avec le niveau de zoom configuré à 14
+        // Centrage sur Pikine Nord au niveau de zoom 14
         var pointTarget = proj4('EPSG:4326', 'EPSG:32628', [-17.395027, 14.761347]);
         var leafletPoint = L.point(pointTarget[0], pointTarget[1]);
         map.setView(crs.projection.unproject(leafletPoint), 14);
@@ -118,49 +118,64 @@ html_pikine_nord = """<!doctype html>
         var bounds_group = new L.featureGroup([]);
         function setBounds() {}
 
-        map.createPane('pane_GoogleSatellite_0');
-        map.getPane('pane_GoogleSatellite_0').style.zIndex = 400;
-        var layer_GoogleSatellite_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-            pane: 'pane_GoogleSatellite_0',
+        // --- FOND DE CARTE 1 : GOOGLE HYBRIDE (PAR DÉFAUT - COUCHE CHARGÉE ET AJOUTÉE) ---
+        map.createPane('pane_GoogleHybride_0');
+        map.getPane('pane_GoogleHybride_0').style.zIndex = 400;
+        var layer_GoogleHybride_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleHybride_0',
             opacity: 1.0,
             attribution: '© Google',
             minZoom: 1,
             maxZoom: 28,
             maxNativeZoom: 20
         });
-        map.addLayer(layer_GoogleSatellite_0);
+        map.addLayer(layer_GoogleHybride_0); // Ajouté directement sur la carte par défaut
+
+        // --- FOND DE CARTE 2 : OPENSTREETMAP (SECONDAIRE) ---
+        map.createPane('pane_OSM_1');
+        map.getPane('pane_OSM_1').style.zIndex = 399;
+        var layer_OSM_1 = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSM_1',
+            opacity: 1.0,
+            attribution: '© OpenStreetMap contributors',
+            minZoom: 1,
+            maxZoom: 28
+        });
+        // Non ajouté à la carte initialement pour laisser Google Hybride visible en premier
+
+        // Les couches thématiques de données fiscales viennent ensuite (pane_PIKINENORD_1, etc.)
         </script>
     </body>
 </html>"""
 
-# Configuration de l'interface
+# Configuration de l'interface utilisateur Streamlit
 col_info, col_actions = st.columns([2, 1])
 
 with col_info:
-    st.subheader("📊 Paramètres d'exportation")
+    st.subheader("📊 Configuration de la Carte")
     st.markdown("""
-    - **Projet :** Application de gestion de la fiscalité locale.
-    - **Zone cible :** Commune de Pikine Nord.
-    - **Coordonnées du centre :** 14.761347, -17.395027.
-    - **Niveau de zoom fixe :** 14.
+    - **Projet :** Gestion de la fiscalité locale de Pikine Nord.
+    - **Fond principal (Par défaut) :** Google Hybride (`lyrs=y`).
+    - **Fond secondaire :** OpenStreetMap (OSM).
+    - **Centrage initial :** 14.761347, -17.395027 (Zoom 14).
     """)
 
 with col_actions:
-    st.subheader("📥 Téléchargement")
+    st.subheader("📥 Extraction")
     st.download_button(
-        label="Télécharger index.html (Zoom 14)",
+        label="Télécharger index.html (Google Hybride/OSM)",
         data=html_pikine_nord,
         file_name="index.html",
         mime="text/html",
         type="primary"
     )
 
-# --- PAGE NETLIFY INTÉGRÉE AVEC LE NIVEAU DE ZOOM 14 ---
+# --- PAGE NETLIFY INTÉGRÉE ---
 st.divider()
 st.subheader("🗺️ Aperçu en temps réel de la Carte Interactive")
-st.write("Retrouvez ci-dessous la cartographie dynamique calée sur le niveau de zoom 14 :")
+st.write("Visualisation de l'interface cartographique de Pikine Nord :")
 
-# URL de Netlify mise à jour pour s'ouvrir au niveau de zoom 14
+# URL mise à jour pour charger la carte sur Netlify au zoom 14
 url_netlify = "https://gestion-fiscalite-local-pikine-nord.netlify.app/#14/14.761347/-17.395027"
 st.components.v1.iframe(url_netlify, height=600, scrolling=True)
 
