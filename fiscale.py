@@ -11,7 +11,7 @@ st.set_page_config(
 st.title("🌍 Gestion de la Fiscalité dans la commune de Pikine Nord")
 st.write("Cette application Streamlit permet de générer, corriger et télécharger l'interface cartographique de la commune.")
 
-# Définition du code HTML mis à jour et centré (au cas où vous téléchargez le fichier index.html)
+# Définition du code HTML mis à jour avec zoom = 14
 html_pikine_nord = """<!doctype html>
 <html lang="en">
     <head>
@@ -91,10 +91,10 @@ html_pikine_nord = """<!doctype html>
             minZoom: 1
         });
 
-        // Centrage ajusté sur la zone requise (14.761347, -17.395027)
+        // Centrage sur Pikine Nord avec le niveau de zoom configuré à 14
         var pointTarget = proj4('EPSG:4326', 'EPSG:32628', [-17.395027, 14.761347]);
         var leafletPoint = L.point(pointTarget[0], pointTarget[1]);
-        map.setView(crs.projection.unproject(leafletPoint), 16);
+        map.setView(crs.projection.unproject(leafletPoint), 14);
 
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
@@ -133,7 +133,7 @@ html_pikine_nord = """<!doctype html>
     </body>
 </html>"""
 
-# Interface de téléchargement de l'index.html
+# Configuration de l'interface
 col_info, col_actions = st.columns([2, 1])
 
 with col_info:
@@ -142,25 +142,26 @@ with col_info:
     - **Projet :** Application de gestion de la fiscalité locale.
     - **Zone cible :** Commune de Pikine Nord.
     - **Coordonnées du centre :** 14.761347, -17.395027.
+    - **Niveau de zoom fixe :** 14.
     """)
 
 with col_actions:
     st.subheader("📥 Téléchargement")
     st.download_button(
-        label="Télécharger index.html pour maintenance",
+        label="Télécharger index.html (Zoom 14)",
         data=html_pikine_nord,
         file_name="index.html",
         mime="text/html",
         type="primary"
     )
 
-# --- AJOUT DE LA PAGE INTÉGRÉE (NETLIFY) ---
+# --- PAGE NETLIFY INTÉGRÉE AVEC LE NIVEAU DE ZOOM 14 ---
 st.divider()
 st.subheader("🗺️ Aperçu en temps réel de la Carte Interactive")
-st.write("Retrouvez ci-dessous la cartographie dynamique hébergée sur Netlify :")
+st.write("Retrouvez ci-dessous la cartographie dynamique calée sur le niveau de zoom 14 :")
 
-# Intégration de la page Netlify avec les coordonnées spécifiées
-url_netlify = "https://gestion-fiscalite-local-pikine-nord.netlify.app/#16/14.761347/-17.395027"
+# URL de Netlify mise à jour pour s'ouvrir au niveau de zoom 14
+url_netlify = "https://gestion-fiscalite-local-pikine-nord.netlify.app/#14/14.761347/-17.395027"
 st.components.v1.iframe(url_netlify, height=600, scrolling=True)
 
 # --- ZONE DES LIENS DE L'APPLICATION ---
